@@ -313,6 +313,67 @@ class XMLGuardUniversal:
         
         return None
     
+    def auto_register_desktop_files(self):
+        """Tự động đăng ký file XML từ Desktop vào database"""
+        # Chỉ scan Desktop của Administrator (MeshCentral) để tránh loạn file
+        desktop_dir = "C:/Users/Administrator/Desktop/"
+        
+        if not os.path.exists(desktop_dir):
+            return
+        
+        try:
+            self.log(f"📁 Scanning MeshCentral Desktop: {desktop_dir}", "INFO")
+            
+            for file in os.listdir(desktop_dir):
+                if not file.endswith('.xml'):
+                    continue
+                    
+                file_path = os.path.join(desktop_dir, file)
+                xml_info = self.extract_xml_info(file_path)
+                
+                if xml_info.get('mst') and xml_info.get('form_code') and xml_info.get('period'):
+                    # Tự động đăng ký vào MeshTrash database
+                    self.log(f"🔄 Auto-registering: {file}", "INFO")
+                    self.register_to_meshtrash(xml_info, file_path)
+                else:
+                    self.log(f"⚠️ Cannot extract info from: {file}", "WARN")
+                    
+        except Exception as e:
+            self.log(f"Error auto-registering desktop files: {e}", "WARN")
+    
+    def register_to_meshtrash(self, xml_info, file_path):
+        """Đăng ký file vào MeshTrash database"""
+        try:
+            register_data = {
+                "action": "add_legitimate_file",
+                "mst": xml_info['mst'],
+                "form_code": xml_info['form_code'],
+                "period": xml_info['period'],
+                "file_path": file_path
+            }
+            
+            import urllib3
+            urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+            
+            response = requests.post(
+                f"{self.meshcentral_url}/api/legitimate_files",
+                json=register_data,
+                timeout=10,
+                verify=False,
+                headers={'User-Agent': 'XMLGuard-Universal/3.0.0'}
+            )
+            
+            if response.status_code == 200:
+                result = response.json()
+                if result.get("success"):
+                    self.log(f"✅ Auto-registered: {file_path}", "SUCCESS")
+                    return True
+            
+        except Exception as e:
+            self.log(f"Error registering to MeshTrash: {e}", "WARN")
+        
+        return False
+
     def get_legitimate_file_path(self, xml_info):
         """Get path to legitimate file based on 4 key identifiers"""
         # Check MeshTrash server first
@@ -542,6 +603,10 @@ class XMLGuardUniversal:
         # Check network
         if not self.check_network():
             self.log("⚠️ No network connection to MeshCentral", "WARN")
+        
+        # Auto-register files from Desktop
+        self.log("📁 Auto-registering files from Desktop...", "INFO")
+        self.auto_register_desktop_files()
         
         self.running = True
         
