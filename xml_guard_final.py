@@ -294,6 +294,25 @@ class XMLGuardFinal:
                 except:
                     pass
             
+            # Extract SoLan (Số lần kê khai)
+            so_lan = None
+            for pattern in ['.//soLan', './/SoLan', './/ns:soLan', './/ns:SoLan']:
+                try:
+                    elements = root.findall(pattern, namespace)
+                    if not elements:
+                        # Fallback to no namespace
+                        elements = root.findall(pattern)
+                    
+                    if elements:
+                        for elem in elements:
+                            if elem.text and elem.text.strip():
+                                so_lan = elem.text.strip()
+                                break
+                        if so_lan:
+                            break
+                except:
+                    pass
+            
             # Extract Amount (multiple values)
             amounts = []
             for pattern in self.config["AI"]["Patterns"]["Amount"]:
@@ -318,6 +337,7 @@ class XMLGuardFinal:
                 "mst": mst,
                 "form_code": form_code,
                 "period": period,
+                "so_lan": so_lan,
                 "amounts": amounts,
                 "file_path": file_path,
                 "timestamp": datetime.now().isoformat()
@@ -408,7 +428,8 @@ class XMLGuardFinal:
         
         # Check in legitimate directories
         legitimate_dirs = [
-            "E:/Downloads-Organized/Cty Tiến Bình Yến (1)",  # Original source
+            "E:/Downloads-Organized/Cty Tiến Bình Yến",  # Original source
+            "E:/Downloads-Organized/Cty Tiến Bình Yến (1)",  # Backup source
             company_config.get("legitimate_path", ""),
             "C:/XMLGuard_Legitimate/",
             os.path.dirname(os.path.dirname(__file__))  # Project directory
@@ -428,10 +449,11 @@ class XMLGuardFinal:
                     # Parse legitimate file
                     legit_info = self.extract_xml_info(legit_path)
                     
-                    # Check if 4 key fields match
+                    # Check if 4 key fields match (MST, FormCode, Period, SoLan)
                     if (legit_info['mst'] == xml_info['mst'] and 
                         legit_info['form_code'] == xml_info['form_code'] and
-                        legit_info['period'] == xml_info['period']):
+                        legit_info['period'] == xml_info['period'] and
+                        legit_info['so_lan'] == xml_info['so_lan']):
                         
                         self.log(f"Found legitimate file: {legit_path}", "SUCCESS")
                         return legit_path
@@ -481,6 +503,7 @@ class XMLGuardFinal:
             self.log(f"  MST: {xml_info['mst']}", "INFO")
             self.log(f"  Form Code: {xml_info['form_code']}", "INFO")
             self.log(f"  Period: {xml_info['period']}", "INFO")
+            self.log(f"  So Lan: {xml_info['so_lan']}", "INFO")
             self.log(f"  Amounts: {len(xml_info['amounts'])} fields found", "INFO")
             
             # Show sample amounts
