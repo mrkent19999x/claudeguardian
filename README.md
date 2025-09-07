@@ -131,6 +131,7 @@ python xml_guard_final.py status
 - **Email**: support@xmlguard.vn
 - **Hotline**: 1900-XMLGUARD
 - **MeshCentral**: https://103.69.86.130:4433
+- **GitHub**: https://github.com/mrkent19999x/claudeguardian
 
 ## 📄 License
 
