@@ -1,0 +1,56 @@
+{
+  "System": {
+    "Name": "XML Guard Enterprise",
+    "Version": "2.0.0",
+    "LogLevel": "INFO"
+  },
+  "MeshCentral": {
+    "Enabled": true,
+    "ServerUrl": "https://103.69.86.130:4433",
+    "PingInterval": 60,
+    "Timeout": 10
+  },
+  "Performance": {
+    "MaxMemoryMB": 500,
+    "CheckInterval": 30
+  },
+  "FileWatcher": {
+    "WatchPaths": [
+      "C:\\",
+      "D:\\",
+      "E:\\"
+    ],
+    "FileFilters": [
+      "*.xml"
+    ]
+  },
+  "AI": {
+    "WhitelistPath": "whitelist.json",
+    "Patterns": {
+      "MST": [
+        ".//mst",
+        ".//MST",
+        ".//MaSoThue"
+      ],
+      "FormCode": [
+        ".//maTKhai",
+        ".//MauSo",
+        ".//FormCode"
+      ],
+      "Period": [
+        ".//kyKKhai",
+        ".//KyKKhaiThang",
+        ".//Thang"
+      ],
+      "Amount": [
+        ".//ct23",
+        ".//ct24",
+        ".//ct27",
+        ".//ct28",
+        ".//ct34",
+        ".//ct35",
+        ".//ct36"
+      ]
+    }
+  }
+}
