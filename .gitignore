@@ -1,0 +1,76 @@
+# XML Guard Enterprise - Git Ignore
+
+# Build outputs
+Build/Output/build/
+Build/Output/dist/
+Build/Output/*.exe
+Build/Output/*.spec
+Build/Output/*.zip
+
+# Logs
+*.log
+Logs/
+Build/Output/Logs/
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.backup
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# PowerShell
+*.ps1.bak
+*.ps1.tmp
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Test files
+Test-*.ps1
+test-*.xml
+Test-XML-Files/
+
+# Backup files
+*.backup
+*.old
+*_backup.*
+
+# Config files with sensitive data
+config.json
+secrets.json
+*.key
+*.pem
+
+# MeshCentral
+MeshCentral/data/
+MeshCentral/logs/
+
+# Package files
+*.zip
+*.rar
+*.7z
+
+# Documentation drafts
+DRAFT-*.md
+TEMP-*.md

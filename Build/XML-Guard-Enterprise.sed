@@ -1,0 +1,47 @@
+﻿[Version]
+Class=IEXPRESS
+SEDVersion=3
+[Options]
+PackagePurpose=InstallApp
+ShowInstallProgramWindow=0
+HideExtractAnimation=0
+UseLongFileName=1
+InsideCompressed=0
+CAB_FixedSize=0
+CAB_ResvCodeSigning=0
+RebootMode=N
+InstallPrompt=%InstallPrompt%
+DisplayLicense=%DisplayLicense%
+FinishMessage=%FinishMessage%
+TargetName=%TargetName%
+FriendlyName=%FriendlyName%
+AppLaunched=%AppLaunched%
+PostInstallCmd=%PostInstallCmd%
+AdminQuietInstCmd=%AdminQuietInstCmd%
+UserQuietInstCmd=%UserQuietInstCmd%
+SourceFiles=SourceFiles
+[Strings]
+InstallPrompt=XML Guard Enterprise v2.0.0
+DisplayLicense=
+FinishMessage=XML Guard Enterprise installed successfully!
+TargetName=XML-Guard-Enterprise.exe
+FriendlyName=XML Guard Enterprise
+AppLaunched=XML-Guard-Simple.ps1
+PostInstallCmd=
+AdminQuietInstCmd=
+UserQuietInstCmd=
+FILE0="XML-Guard-Simple.ps1"
+FILE1="Core\XML-Guard-Core.ps1"
+FILE2="Core\AI-Classifier.ps1"
+FILE3="Utils\Logger.ps1"
+FILE4="Utils\Config-Manager.ps1"
+FILE5="Config\config.json"
+[SourceFiles]
+SourceFiles0=.\Build\Output\
+[SourceFiles0]
+%FILE0%=
+%FILE1%=
+%FILE2%=
+%FILE3%=
+%FILE4%=
+%FILE5%=
