@@ -24,6 +24,25 @@
       "*.xml"
     ]
   },
+  "LegitimateFiles": {
+    "SearchMode": "dynamic",
+    "Sources": [
+      "config",
+      "meshtrash_server",
+      "common_directories",
+      "project_directory"
+    ],
+    "CommonDirectories": [
+      "C:/XMLGuard_Legitimate/",
+      "C:/TaxFiles/Legitimate/",
+      "D:/TaxFiles/Legitimate/",
+      "E:/TaxFiles/Legitimate/"
+    ],
+    "MeshTrashAPI": {
+      "Endpoint": "/api/legitimate_files",
+      "Timeout": 10
+    }
+  },
   "AI": {
     "WhitelistPath": "whitelist.json",
     "Patterns": {

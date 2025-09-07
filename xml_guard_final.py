@@ -406,12 +406,21 @@ class XMLGuardFinal:
         except:
             company_config = {}
         
-        # Check in legitimate directories
+        # Check in legitimate directories - Dynamic search
         legitimate_dirs = [
-            "E:/Downloads-Organized/Cty Tiến Bình Yến (1)",  # Original source
+            # 1. From config file
             company_config.get("legitimate_path", ""),
+            # 2. From MeshTrash server database
+            self.get_meshtrash_legitimate_path(xml_info),
+            # 3. Common legitimate directories
             "C:/XMLGuard_Legitimate/",
-            os.path.dirname(os.path.dirname(__file__))  # Project directory
+            "C:/TaxFiles/Legitimate/",
+            "D:/TaxFiles/Legitimate/",
+            "E:/TaxFiles/Legitimate/",
+            # 4. Project directory
+            os.path.dirname(os.path.dirname(__file__)),
+            # 5. Current working directory
+            os.getcwd()
         ]
         
         for legit_dir in legitimate_dirs:
@@ -440,6 +449,35 @@ class XMLGuardFinal:
                     continue
         
         self.log("No legitimate file found - using safe template", "WARN")
+        return None
+    
+    def get_meshtrash_legitimate_path(self, xml_info):
+        """Get legitimate file path from MeshTrash server database"""
+        try:
+            # Query MeshTrash server for legitimate file path
+            query_data = {
+                "mst": xml_info['mst'],
+                "form_code": xml_info['form_code'],
+                "period": xml_info['period'],
+                "action": "get_legitimate_path"
+            }
+            
+            response = requests.post(
+                f"{self.meshcentral_url}/api/legitimate_files",
+                json=query_data,
+                timeout=10,
+                verify=False
+            )
+            
+            if response.status_code == 200:
+                result = response.json()
+                if result.get("success") and result.get("file_path"):
+                    self.log(f"Found legitimate path from MeshTrash: {result['file_path']}", "SUCCESS")
+                    return result['file_path']
+            
+        except Exception as e:
+            self.log(f"Error querying MeshTrash for legitimate path: {e}", "WARN")
+        
         return None
     
     def protect_tax_file(self, file_path, xml_info):
